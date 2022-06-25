@@ -17,42 +17,42 @@ type ResponseOutput struct {
 
 func (u UserController) SignupUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		User := models.User{}
-		json.NewDecoder(r.Body).Decode(&User)
+		user := models.User{}
+		json.NewDecoder(r.Body).Decode(&user)
 
-		if len(User.Name) < 3 {
+		if len(user.Name) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Name should be at least 3 characters long!"})
 			return
 		}
 
-		if len(User.Username) < 3 {
+		if len(user.Username) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Username should be at least 3 characters long!"})
 			return
 		}
 
-		if len(User.Email) < 3 {
+		if len(user.Email) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Email should be at least 3 characters long!"})
 			return
 		}
 
-		if len(User.Password) < 3 {
+		if len(user.Password) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Password should be at least 3 characters long!"})
 			return
 		}
 
 		userDao := daos.UsersDao{}
 
-		_, err := userDao.CreateUser(User)
+		_, err := userDao.CreateUser(user)
 
 		if err != nil {
-			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Add new User in database!"})
+			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Add new user in database!"})
 			return
 		}
 
 		payload := utils.Payload{
-			Username: User.Username,
-			Email:    User.Email,
-			Id:       User.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			Id:       user.ID,
 		}
 
 		token, err := utils.GenerateJwtToken(payload)
@@ -61,9 +61,11 @@ func (u UserController) SignupUser() http.HandlerFunc {
 			return
 		}
 
+		user.Password = ""
+
 		utils.SendSuccess(w, ResponseOutput{
 			Token: token,
-			User:  User,
+			User:  user,
 		})
 	}
 }
@@ -105,6 +107,8 @@ func (u UserController) LoginUser() http.HandlerFunc {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Generate New JWT Token!"})
 			return
 		}
+
+		user.Password = ""
 
 		utils.SendSuccess(w, ResponseOutput{
 			Token: token,

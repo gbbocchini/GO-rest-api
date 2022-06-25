@@ -32,7 +32,7 @@ func (c BookController) GetBook() http.HandlerFunc {
 		id, err := strconv.ParseInt(params["id"], 10, 0)
 
 		if err != nil {
-			utils.SendError(w, http.StatusNotFound, models.Error{Message: "id must be int convertible"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "id must be int convertible"})
 			return
 		}
 
@@ -50,13 +50,25 @@ func (c BookController) GetBook() http.HandlerFunc {
 
 func (c BookController) AddBook() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 		var newBookMap map[string]string
 		err := json.NewDecoder(r.Body).Decode(&newBookMap)
 
 		if err != nil {
-			utils.SendError(w, http.StatusNotFound, models.Error{Message: "all values must be strings"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "all values must be strings"})
 			return
+		}
+
+		if newBookMap["title"] == "" || len(newBookMap["title"]) < 3 {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "title is mandatory"})
+		}
+
+		if newBookMap["author"] == "" || len(newBookMap["author"]) < 3 {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "author is mandatory"})
+		}
+
+		if newBookMap["utils"] == "" || len(newBookMap["year"]) < 4 {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "year is mandatory"})
+
 		}
 
 		newBookYear, _ := strconv.ParseInt(newBookMap["year"], 10, 0)
@@ -79,7 +91,6 @@ func (c BookController) AddBook() http.HandlerFunc {
 
 func (c BookController) UpdateBook() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 		var updateData map[string]string
 		err := json.NewDecoder(r.Body).Decode(&updateData)
 
@@ -95,19 +106,21 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse id"})
 		}
 
-		if updateData["title"] != "" {
+		if updateData["title"] != "" || len(updateData["title"]) < 3 {
 			bookToUpdate.Title = updateData["title"]
 		}
 
-		if updateData["author"] != "" {
+		if updateData["author"] != "" || len(updateData["author"]) < 3 {
 			bookToUpdate.Author = updateData["author"]
 		}
 
-		if updateData["year"] != "" {
+		if updateData["year"] != "" || len(updateData["year"]) < 4 {
 			newBookYear, err := strconv.ParseInt(updateData["year"], 10, 0)
+
 			if err != nil {
 				utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse year"})
 			}
+
 			bookToUpdate.Year = newBookYear
 		}
 
@@ -118,7 +131,7 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: daos.DatabaseError})
 			return
 		}
-
+		
 		utils.SendSuccess(w, newlyAdded)
 	}
 }
@@ -128,7 +141,7 @@ func (c BookController) RemoveBook() http.HandlerFunc {
 		idToRemove, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 0)
 
 		if err != nil {
-			utils.SendError(w, 400, models.Error{Message: "impossible to parse id"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse id"})
 			return
 		}
 
