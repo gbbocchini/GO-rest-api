@@ -1,15 +1,17 @@
 # GOLang REST API study implementation
 
-A simple rest-api made with GO, Mux and Bun
-## Setting up for Development
+A simple rest-api made with GO, Mux and Bun with authentication using go-jwt.
 
-First create a POSTGRESQL instance and inside it, a table called books (columns: id bigserial, title varchar, 
-author varchar, year int8). Then export the db URI:
+## Setting up:
+
+First create a POSTGRESQL instance and inside it. Then, create a .env file with the following env vars:
 
 ```
-export POSTGRES_SQL_URL="postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:<POSTGRES_PORT>/<DB_INTANCE_NAME>?sslmode=disable"
+POSTGRES_SQL_URL="postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:<POSTGRES_PORT>/<DB_INTANCE_NAME>?sslmode=disable"
+JWT_SECRET="<yoursupersecret>"
 ```
-To run locally:
+To run locally (since the app uses Go Modules, you can run the command bellow and Go will take care of downloading dependencies).
+At first run, the app will check the database and create the necessary tables. In the table books, 2 example books will be inserted.
 ```
 go run main.go
 ```
@@ -19,9 +21,11 @@ go build
 ```
 To run the build:
 ```
-./rest
+./GO-rest-api
 ```
 
 ## References
 - https://github.com/gorilla/mux
 - https://bun.uptrace.dev/
+- https://pkg.go.dev/github.com/golang-jwt/jwt
+- https://github.com/subosito/gotenv
