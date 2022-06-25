@@ -35,6 +35,11 @@ func CreateTablesAndPrePopulate() {
 		{Title: "Book2", Author: "Author2", Year: 2022},
 	}
 
-	Db.NewInsert().Model(&books).Exec(DbContext)
+	_, err = Db.NewInsert().Model(&books).Exec(DbContext)
+
+	if err != nil {
+		fmt.Println("Could not create sample books on database table 'books', please check...")
+		return
+	}
 
 }
