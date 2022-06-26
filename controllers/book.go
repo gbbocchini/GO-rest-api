@@ -100,21 +100,28 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 		}
 
 		bookId, errr := strconv.ParseInt(mux.Vars(r)["id"], 10, 0)
-		bookToUpdate := models.Book{ID: bookId}
 
 		if errr != nil {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse id"})
 		}
 
-		if updateData["title"] != "" || len(updateData["title"]) < 3 {
+		bookToUpdate := models.Book{ID: bookId}
+
+		if len(updateData["title"]) > 3 {
 			bookToUpdate.Title = updateData["title"]
+		} else {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "title minimum length is 4"})
+			return
 		}
 
-		if updateData["author"] != "" || len(updateData["author"]) < 3 {
+		if len(updateData["author"]) > 3 {
 			bookToUpdate.Author = updateData["author"]
+		} else {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "author minimum length is 4"})
+			return
 		}
 
-		if updateData["year"] != "" || len(updateData["year"]) < 4 {
+		if len(updateData["year"]) > 4 {
 			newBookYear, err := strconv.ParseInt(updateData["year"], 10, 0)
 
 			if err != nil {
@@ -122,6 +129,9 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 			}
 
 			bookToUpdate.Year = newBookYear
+		} else {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "year minimum length is 4"})
+			return
 		}
 
 		booksDao := daos.BookDAO{}
@@ -131,7 +141,7 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: daos.DatabaseError})
 			return
 		}
-		
+
 		utils.SendSuccess(w, newlyAdded)
 	}
 }

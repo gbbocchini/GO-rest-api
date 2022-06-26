@@ -40,9 +40,16 @@ func (u UserController) SignupUser() http.HandlerFunc {
 			return
 		}
 
-		userDao := daos.UsersDao{}
+		hashedPass, err := utils.HashPassword(user.Password)
 
-		_, err := userDao.CreateUser(user)
+		if err != nil {
+			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Couldn't hash password."})
+			return
+		}
+
+		user.Password = hashedPass
+		userDao := daos.UsersDao{}
+		_, err = userDao.CreateUser(user)
 
 		if err != nil {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Add new user in database!"})
@@ -60,8 +67,6 @@ func (u UserController) SignupUser() http.HandlerFunc {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Generate New JWT Token!"})
 			return
 		}
-
-		user.Password = ""
 
 		utils.SendSuccess(w, ResponseOutput{
 			Token: token,
@@ -84,15 +89,19 @@ func (u UserController) LoginUser() http.HandlerFunc {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Password!"})
 			return
 		}
+
 		userDao := daos.UsersDao{}
 		user, err := userDao.GetUser(credentials)
+
 		if err != nil {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Username/Email, Please Signup!"})
 			return
 		}
 
-		if user.Password != credentials["password"] {
-			utils.SendError(w, http.StatusNotFound, models.Error{Message: "Invalid Credentials!"})
+		isCorrectPass := utils.CheckPasswordHash(credentials["password"], user.Password)
+
+		if !isCorrectPass {
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Credentials!"})
 			return
 		}
 
@@ -103,6 +112,7 @@ func (u UserController) LoginUser() http.HandlerFunc {
 		}
 
 		token, err := utils.GenerateJwtToken(payload)
+
 		if err != nil {
 			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Generate New JWT Token!"})
 			return

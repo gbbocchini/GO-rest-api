@@ -1,17 +1,17 @@
 # GOLang REST API study implementation
 
-A simple rest-api made with GO 1.18, Mux,Bun and go-jwt.
+A simple rest-api made with GO, Mux and Bun with authentication using go-jwt.
 
 ## Setting up:
 
-First create a POSTGRESQL instance, then create a .env file inside this same folder with the following env vars:
+First create a POSTGRESQL instance and inside it. Then, create a .env file with the following env vars:
 
 ```
 POSTGRES_SQL_URL="postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_HOST>:<POSTGRES_PORT>/<DB_INTANCE_NAME>?sslmode=disable"
-JWT_SECRET="<YOURSUPERSECRET>"
+JWT_SECRET="<yoursupersecret>"
 ```
-To run locally use (the app uses Go Modules, you can run the command bellow and Go will take care of downloading and installing dependencies.
-At first run, the app will check the database and create the necessary tables. In the table books, 2 example books will be inserted):
+To run locally (since the app uses Go Modules, you can run the command bellow and Go will take care of downloading dependencies).
+At first run, the app will check the database and create the necessary tables. In the table books, 2 example books will be inserted.
 ```
 go run main.go
 ```
@@ -21,7 +21,7 @@ go build
 ```
 To run the build:
 ```
-./rest
+./GO-rest-api
 ```
 
 ## References
