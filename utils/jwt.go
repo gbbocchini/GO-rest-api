@@ -26,7 +26,7 @@ var JWT_SECRET string
 
 func GenerateJwtToken(payload Payload) (string, error) {
 	if JWT_SECRET = os.Getenv("JWT_SECRET"); JWT_SECRET == "" {
-		log.Fatal("[ ERROR ] JWT_SECRET environment variable not provided!\n")
+		log.Fatal("JWT_SECRET environment variable not provided")
 	}
 
 	key := []byte(JWT_SECRET)

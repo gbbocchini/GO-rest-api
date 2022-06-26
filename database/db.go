@@ -31,10 +31,19 @@ func CreateTablesAndPrePopulate() {
 	}
 
 	books := []models.Book{
-		{Title: "Book1", Author: "Author1", Year: 1990},
-		{Title: "Book2", Author: "Author2", Year: 2022},
+		{Title: "Book1", Author: "Author1", Year: 1983},
+		{Title: "Book2", Author: "Author2", Year: 1990},
+		{Title: "Book3", Author: "Author3", Year: 2000},
+		{Title: "Book4", Author: "Author4", Year: 2010},
+		{Title: "Book5", Author: "Author5", Year: 2020},
+		{Title: "Book6", Author: "Author6", Year: 2022},
 	}
 
-	Db.NewInsert().Model(&books).Exec(DbContext)
+	_, err = Db.NewInsert().Model(&books).Exec(DbContext)
+
+	if err != nil {
+		fmt.Println("Could not create sample books on database table 'books', please check...")
+		return
+	}
 
 }
