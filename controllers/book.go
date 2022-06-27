@@ -60,15 +60,17 @@ func (c BookController) AddBook() http.HandlerFunc {
 
 		if newBookMap["title"] == "" || len(newBookMap["title"]) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "title is mandatory"})
+			return
 		}
 
 		if newBookMap["author"] == "" || len(newBookMap["author"]) < 3 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "author is mandatory"})
+			return
 		}
 
 		if newBookMap["utils"] == "" || len(newBookMap["year"]) < 4 {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "year is mandatory"})
-
+			return
 		}
 
 		newBookYear, _ := strconv.ParseInt(newBookMap["year"], 10, 0)
@@ -103,6 +105,7 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 
 		if errr != nil {
 			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse id"})
+			return
 		}
 
 		bookToUpdate := models.Book{ID: bookId}
@@ -126,6 +129,7 @@ func (c BookController) UpdateBook() http.HandlerFunc {
 
 			if err != nil {
 				utils.SendError(w, http.StatusBadRequest, models.Error{Message: "impossible to parse year"})
+				return
 			}
 
 			bookToUpdate.Year = newBookYear

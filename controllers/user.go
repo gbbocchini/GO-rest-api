@@ -68,10 +68,8 @@ func (u UserController) SignupUser() http.HandlerFunc {
 			return
 		}
 
-		utils.SendSuccess(w, ResponseOutput{
-			Token: token,
-			User:  user,
-		})
+		user.Password = ""
+		utils.SendSuccess(w, ResponseOutput{Token: token, User: user})
 	}
 }
 
@@ -81,12 +79,12 @@ func (u UserController) LoginUser() http.HandlerFunc {
 		json.NewDecoder(r.Body).Decode(&credentials)
 
 		if len(credentials["id"]) < 3 {
-			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Username/Email!"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Username/Email"})
 			return
 		}
 
 		if len(credentials["password"]) < 3 {
-			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Password!"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Password"})
 			return
 		}
 
@@ -94,14 +92,14 @@ func (u UserController) LoginUser() http.HandlerFunc {
 		user, err := userDao.GetUser(credentials)
 
 		if err != nil {
-			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Username/Email, Please Signup!"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Credentials"})
 			return
 		}
 
 		isCorrectPass := utils.CheckPasswordHash(credentials["password"], user.Password)
 
 		if !isCorrectPass {
-			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Credentials!"})
+			utils.SendError(w, http.StatusBadRequest, models.Error{Message: "Invalid Credentials"})
 			return
 		}
 
@@ -114,15 +112,11 @@ func (u UserController) LoginUser() http.HandlerFunc {
 		token, err := utils.GenerateJwtToken(payload)
 
 		if err != nil {
-			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Generate New JWT Token!"})
+			utils.SendError(w, http.StatusInternalServerError, models.Error{Message: "Failed To Generate New JWT Token"})
 			return
 		}
 
 		user.Password = ""
-
-		utils.SendSuccess(w, ResponseOutput{
-			Token: token,
-			User:  user,
-		})
+		utils.SendSuccess(w, ResponseOutput{Token: token, User: user})
 	}
 }
